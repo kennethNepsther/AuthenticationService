@@ -18,8 +18,7 @@ export const VERIFICATION_EMAIL_TEMPLATE = `
     </div>
     <p>Digite este código na página de verificação para concluir seu cadastro.</p>
     <p>Por motivos de segurança, este código expira em 15 minutos.</p>
-    <p>Se você não criou uma conta conosco, ignore este e-mail.</p>
-    <p>Atenciosamente,<br>Equipe do Seu App</p>
+    <p>Se você não criou uma conta conosco, ignore este e-mail.</p>    
   </div>
   <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
     <p>Esta é uma mensagem automática. Por favor, não responda este e-mail.</p>
@@ -92,4 +91,57 @@ export const PASSWORD_RESET_REQUEST_TEMPLATE = `
   </div>
 </body>
 </html>
+`;
+
+export const WELCOME_EMAIL_TEMPLATE = `
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bem-vindo(a)!</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+  <table align="center" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; margin: 0 auto; border-radius: 8px; overflow: hidden;">
+    <tr>
+      <td style="background: linear-gradient(to right, #BA4DE3, #8A05BE); padding: 30px; text-align: center;">
+        <img src="{logoUrl}" alt="Logo do App" style="max-height: 50px; margin-bottom: 15px;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Bem-vindo(a)</h1>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 30px; color: #333;">
+        <p style="font-size: 16px;">Olá, <strong>{userName}</strong>,</p>
+
+        <p style="font-size: 16px;">
+          Estamos muito felizes em ter você conosco! 🎉
+        </p>
+
+        <p style="font-size: 16px;">
+          Com sua conta agora ativa, você já pode explorar todos os recursos do nosso aplicativo e aproveitar ao máximo a sua experiência.
+        </p>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="{startLink}" style="background-color: #BA4DE3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-size: 16px;">
+            Começar Agora
+          </a>
+        </div>
+
+        <p style="font-size: 14px; color: #555;">
+          Se tiver alguma dúvida ou precisar de ajuda, nossa equipe está aqui para você.
+        </p>
+
+        <p style="margin-top: 30px; font-size: 14px;">Bem-vindo mais uma vez!<br><strong>Equipe do {appName}</strong></p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center; padding: 20px; font-size: 12px; color: #aaa;">
+        Esta é uma mensagem automática. Por favor, não responda este e-mail.
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+
 `;

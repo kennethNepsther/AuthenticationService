@@ -123,12 +123,65 @@ export const verifyEmail = async (req, res) => {
 }
 
 
-
-
 export const login = async (req, res) => {
-  res.send("Login route");
+  const { email, password } = req.body;
+  try {
+    // Validate request body
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Deve preenceher os campos  obrigatórios" });
+    }
+
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Credenciais inválido",
+      });
+    }
+
+    // Check if password is correct
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: "Credenciais inválido",
+      });
+    }
+
+    // Check if email is verified
+    if (!user.isVerified) {
+      return res.status(403).json({
+        success: false,
+        message: "Email não verificado",
+      });
+    }
+
+    //jwt token generation
+    generateTokenAndSetCookie(res, user._id);
+    user.lastLogin = Date.now(); // Update last login time
+    await user.save(); 
+
+    res.status(200).json({
+      success: true,
+      message: "Login bem sucedido",
+      user: {
+        ...user._doc,
+        password: undefined, // Exclude password from response
+      },
+    });
+  } catch (error) {
+    console.error("Error in login:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+ 
 };
 
 export const logout = async (req, res) => {
-  res.send("logout route");
+  res.clearCookie("token");
+  res.status(200).json({ success: true, message: "Terminou a sessão com sucesso" });
+ 
+
 };

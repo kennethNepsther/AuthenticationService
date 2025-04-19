@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "backend/index.js",
-  "scripts": {    
+  "scripts": {
     "dev": "nodemon backend/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,7 +18,7 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mailtrap": "^4.0.0",
+    "mailtrap": "^4.1.0",
     "mongoose": "^8.13.2"
   },
   "devDependencies": {

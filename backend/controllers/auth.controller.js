@@ -1,0 +1,89 @@
+import User from "../models/UserModel.js";
+import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
+import bcrypt from "bcryptjs";
+
+export const signup = async (req, res) => {
+  try {
+    const { name, email, password, phone } = req.body;
+
+    // Validate request body
+    if (!name || !email || !password || !phone) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
+    }
+    // Check if email is valid
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid email format" });
+    }
+    // Check if password is strong enough (at least 6 characters)
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters long",
+      });
+    }
+
+    // Check if phone number is valid (assuming a simple regex for demonstration)
+    const phoneRegex = /^\d{9}$/; // Example: 9-digit phone number 924260010
+    if (!phoneRegex.test(phone)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid phone number format" });
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User already exists" });
+    }
+    // Hash password (you can use bcrypt or any other hashing library)
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const verificationToken = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+
+    // Create new user
+    const newUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+      phone,
+      verificationToken,
+      verificationTokenExpiresAt: Date.now() + 3600000, // 1 hour from now,
+    });
+    await newUser.save();
+    //jwt token generation
+    generateTokenAndSetCookie(res, newUser._id);
+
+    res.status(201).json({
+      success: true,
+      message: "User created successfully",
+      user: {
+        ...newUser._doc,
+        password: undefined, // Exclude password from response
+      },
+    });
+  } catch (error) {
+    console.error("Error in signup:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+
+
+export const login = async (req, res) => {
+  res.send("Login route");
+};
+
+export const logout = async (req, res) => {
+  res.send("logout route");
+};

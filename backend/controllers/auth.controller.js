@@ -244,62 +244,6 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
-export const resetPassword = async (req, res) => {
-  try {
-    const { token } = req.params;
-    const { password } = req.body;
-
-    if (!password) {
-      return res
-        .status(400)
-        .json({ success: false, message: "A nova senha é obrigatória" });
-        
-
-  res.status(200).json({ success: true, message: "Terminou a sessão com sucesso" });
- 
-
-};
-
-export const forgotPassword = async (req, res) => {
-  const { email } = req.body;
-  try {
-    // Validate request body
-    if (!email) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Deve preenceher os campos  obrigatórios" });
-    }
-
-    // Check if user exists
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "Utilizador não encontrado",
-      });
-    }
-
-    // Generate a password reset token 
-    const resetToken = crypto.randomBytes(20).toString("hex");
-    console.log("Reset Token:", resetToken); // Log the reset token for debugging
-    const resetTokenExpiresAt = Date.now() + 3600000; // 1 hour from now
-    user.resetPasswordToken = resetToken;
-    user.resetPasswordExpiresAt = resetTokenExpiresAt;
-    await user.save();
-
-    // Send password reset email 
-    await sendPasswordResetEmail(user.email, user.name,`${process.env.CLIENT_URL}/reset-password/${resetToken}`); 
-    res.status(200).json({
-      success: true,
-      message: "Foi enviado um email para redefinir a senha",
-    });
-    
-  } catch (error) {
-    console.error("Error in resetPassword:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
 export const resetPassword = async (req, res) => { 
   try { 
     
@@ -340,11 +284,8 @@ export const resetPassword = async (req, res) => {
     user.resetPasswordToken = undefined;
     user.resetPasswordExpiresAt = undefined;
     await user.save();
-
     // Send confirmation email (optional)
     await sendResetSuccessEmail(user.email, user.name);
-
-
     res
       .status(200)
       .json({ success: true, message: "Senha redefinida com sucesso" });

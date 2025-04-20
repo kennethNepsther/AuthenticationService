@@ -253,6 +253,7 @@ export const resetPassword = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "A nova senha é obrigatória" });
+        
 
   res.status(200).json({ success: true, message: "Terminou a sessão com sucesso" });
  

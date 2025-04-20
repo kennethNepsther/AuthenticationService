@@ -1,7 +1,8 @@
-import User from "../models/UserModel.js";
-import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
 import bcrypt from "bcryptjs";
-import { sendVerificationEmail } from "../mail/emails.js";
+import crypto from "crypto";
+import User from "../models/UserModel.js";
+import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail,sendResetSuccessEmail } from "../mail/emails.js";
+import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
 
 export const signup = async (req, res) => {
   try {
@@ -80,13 +81,197 @@ export const signup = async (req, res) => {
   }
 };
 
+export const verifyEmail = async (req, res) => {
+  const { code } = req.body;
+  try {
+    // Check if the user exists and the verification code matches
+    const user = await User.findOne({
+      verificationToken: code,
+      verificationTokenExpiresAt: { $gt: Date.now() },
+    });
 
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired verification code",
+      });
+    }
+
+    // Update user to mark email as verified and clear the verification token
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpiresAt = undefined;
+    await user.save();
+
+    await sendWelcomeEmail(user.email, user.name); // Send welcome email
+
+    res.status(200).json({
+      success: true,
+      message: "Email verified successfully",
+      user: {
+        ...user._doc,
+        password: undefined, // Exclude password from response
+      },
+    });
+    
+  } catch (error) {
+    console.error("Error in verifyEmail:", error); 
+    res.status(500).json({  success: false, message: "Internal server error" });
+    
+  }
+
+
+}
 
 
 export const login = async (req, res) => {
-  res.send("Login route");
+  const { email, password } = req.body;
+  try {
+    // Validate request body
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Deve preenceher os campos  obrigatórios" });
+    }
+
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Credenciais inválido",
+      });
+    }
+
+    // Check if password is correct
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: "Credenciais inválido",
+      });
+    }
+
+    // Check if email is verified
+    if (!user.isVerified) {
+      return res.status(403).json({
+        success: false,
+        message: "Email não verificado",
+      });
+    }
+
+    //jwt token generation
+    generateTokenAndSetCookie(res, user._id);
+    user.lastLogin = Date.now(); // Update last login time
+    await user.save(); 
+
+    res.status(200).json({
+      success: true,
+      message: "Login bem sucedido",
+      user: {
+        ...user._doc,
+        password: undefined, // Exclude password from response
+      },
+    });
+  } catch (error) {
+    console.error("Error in login:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+ 
 };
 
 export const logout = async (req, res) => {
-  res.send("logout route");
+  res.clearCookie("token");
+  res.status(200).json({ success: true, message: "Terminou a sessão com sucesso" });
+ 
+
+};
+
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  try {
+    // Validate request body
+    if (!email) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Deve preenceher os campos  obrigatórios" });
+    }
+
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Utilizador não encontrado",
+      });
+    }
+
+    // Generate a password reset token 
+    const resetToken = crypto.randomBytes(20).toString("hex");
+    console.log("Reset Token:", resetToken); // Log the reset token for debugging
+    const resetTokenExpiresAt = Date.now() + 3600000; // 1 hour from now
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpiresAt = resetTokenExpiresAt;
+    await user.save();
+
+    // Send password reset email 
+    await sendPasswordResetEmail(user.email, user.name,`${process.env.CLIENT_URL}/reset-password/${resetToken}`); 
+    res.status(200).json({
+      success: true,
+      message: "Foi enviado um email para redefinir a senha",
+    });
+    
+  } catch (error) {
+    console.error("Error in resetPassword:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const resetPassword = async (req, res) => { 
+  try { 
+    
+    const {token} = req.params;
+    const {password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ success: false, message: "A nova senha é obrigatória" });
+    }
+    // Check if password is strong enough (at least 6 characters)
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "A nova senha deve ter pelo menos 6 caracteres",
+      });
+    }    
+  
+
+    // Check if user exists and the reset token is valid
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpiresAt: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false, message: "Invalid or expired password reset token", });      
+     
+    }
+
+    // Hash new password and update user
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpiresAt = undefined;
+    await user.save();
+
+    // Send confirmation email (optional)
+    await sendResetSuccessEmail(user.email, user.name);
+
+    res.status(200).json({success:true,message: "Senha redefinida com sucesso",});  
+      
+    
+  } catch (error) {
+    console.error("Error in resetPassword:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };

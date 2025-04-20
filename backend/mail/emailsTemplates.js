@@ -29,37 +29,53 @@ export const VERIFICATION_EMAIL_TEMPLATE = `
 
 export const PASSWORD_RESET_SUCCESS_TEMPLATE = `
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Password Reset Successful</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Senha Redefinida com Sucesso</title>
 </head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-  <div style="background: linear-gradient(to right, #BA4DE3, #8A05BE); padding: 20px; text-align: center;">
-    <h1 style="color: white; margin: 0;">Password Reset Successful</h1>
-  </div>
-  <div style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-    <p>Hello,</p>
-    <p>We're writing to confirm that your password has been successfully reset.</p>
-    <div style="text-align: center; margin: 30px 0;">
-      <div style="background-color: #BA4DE3; color: white; width: 50px; height: 50px; line-height: 50px; border-radius: 50%; display: inline-block; font-size: 30px;">
-        ✓
-      </div>
-    </div>
-    <p>If you did not initiate this password reset, please contact our support team immediately.</p>
-    <p>For security reasons, we recommend that you:</p>
-    <ul>
-      <li>Use a strong, unique password</li>
-      <li>Enable two-factor authentication if available</li>
-      <li>Avoid using the same password across multiple sites</li>
-    </ul>
-    <p>Thank you for helping us keep your account secure.</p>
-    <p>Best regards,<br>Your App Team</p>
-  </div>
-  <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
-    <p>This is an automated message, please do not reply to this email.</p>
-  </div>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+  <table align="center" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; margin: 0 auto; border-radius: 8px; overflow: hidden;">
+    <tr>
+      <td style="background: linear-gradient(to right, #BA4DE3, #8A05BE); padding: 30px; text-align: center;">
+        <img src="{logoUrl}" alt="Logo do App" style="max-height: 50px; margin-bottom: 15px;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Senha Redefinida com Sucesso</h1>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 30px; color: #333;">
+        <p style="font-size: 16px;">Olá, <strong>{userName}</strong></p>
+
+        <p style="font-size: 16px;">
+          Esta é uma confirmação de que sua senha foi redefinida com sucesso.
+        </p>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <div style="background-color: #BA4DE3; color: white; width: 50px; height: 50px; line-height: 50px; border-radius: 50%; display: inline-block; font-size: 30px;">
+            ✓
+          </div>
+        </div>
+
+        <p style="font-size: 16px;">
+          Se você não solicitou essa alteração, entre em contato com nossa equipe de suporte imediatamente.
+        </p>
+
+        <p style="font-size: 16px;">Por motivos de segurança, recomendamos que você:</p>
+        <ul style="font-size: 14px; color: #555; padding-left: 20px;">
+          <li>Use uma senha forte e única</li>
+          <li>Ative a autenticação em dois fatores, se disponível</li>
+          <li>Evite reutilizar senhas em diferentes sites</li>
+        </ul>
+        <p style="font-size: 14px;">Obrigado por nos ajudar a manter sua conta segura.</p>        
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center; padding: 20px; font-size: 12px; color: #aaa;">
+        Esta é uma mensagem automática. Por favor, não responda este e-mail.
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
 `;
@@ -121,7 +137,7 @@ export const WELCOME_EMAIL_TEMPLATE = `
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bem-vindo(a)!</title>
+  <title>Bem-vindo(a)</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
   <table align="center" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; margin: 0 auto; border-radius: 8px; overflow: hidden;">
@@ -133,7 +149,7 @@ export const WELCOME_EMAIL_TEMPLATE = `
     </tr>
     <tr>
       <td style="padding: 30px; color: #333;">
-        <p style="font-size: 16px;">Olá, <strong>{userName}</strong>,</p>
+        <p style="font-size: 16px;">Olá, <strong>{userName}</strong></p>
 
         <p style="font-size: 16px;">
           Estamos muito felizes em ter você conosco! 🎉

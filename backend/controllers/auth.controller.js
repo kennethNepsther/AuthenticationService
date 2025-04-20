@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import User from "../models/UserModel.js";
-import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail } from "../mail/emails.js";
+import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail,sendResetSuccessEmail } from "../mail/emails.js";
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
 
 export const signup = async (req, res) => {
@@ -208,9 +208,10 @@ export const forgotPassword = async (req, res) => {
 
     // Generate a password reset token 
     const resetToken = crypto.randomBytes(20).toString("hex");
+    console.log("Reset Token:", resetToken); // Log the reset token for debugging
     const resetTokenExpiresAt = Date.now() + 3600000; // 1 hour from now
     user.resetPasswordToken = resetToken;
-    user.resetPasswordTokenExpiresAt = resetTokenExpiresAt;
+    user.resetPasswordExpiresAt = resetTokenExpiresAt;
     await user.save();
 
     // Send password reset email 
@@ -219,6 +220,55 @@ export const forgotPassword = async (req, res) => {
       success: true,
       message: "Foi enviado um email para redefinir a senha",
     });
+    
+  } catch (error) {
+    console.error("Error in resetPassword:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const resetPassword = async (req, res) => { 
+  try { 
+    
+    const {token} = req.params;
+    const {password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ success: false, message: "A nova senha é obrigatória" });
+    }
+    // Check if password is strong enough (at least 6 characters)
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "A nova senha deve ter pelo menos 6 caracteres",
+      });
+    }    
+  
+
+    // Check if user exists and the reset token is valid
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpiresAt: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false, message: "Invalid or expired password reset token", });      
+     
+    }
+
+    // Hash new password and update user
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpiresAt = undefined;
+    await user.save();
+
+    // Send confirmation email (optional)
+    await sendResetSuccessEmail(user.email, user.name);
+
+    res.status(200).json({success:true,message: "Senha redefinida com sucesso",});  
+      
     
   } catch (error) {
     console.error("Error in resetPassword:", error);

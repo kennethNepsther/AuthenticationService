@@ -38,6 +38,9 @@ function App() {
         <Route path="/" element={"Home"} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/login" element={<LoginPage />} />
+        {/* <Route path="/verify-email" element={"EmailVerificationPage"} /> */}
+        {/* <Route path="/forgot-password" element={"Forgot Password"} />
+        <Route path="/reset-password" element={"Reset Password"} /> */}
       </Routes>
     </div>
   );

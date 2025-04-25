@@ -21,6 +21,8 @@ export const signup = async (req, res) => {
         .status(400)
         .json({ success: false, message: "All fields are required" });
     }
+      console.log("name", name );
+
     // Check if email is valid
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {

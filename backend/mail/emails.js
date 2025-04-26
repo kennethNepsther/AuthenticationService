@@ -33,8 +33,9 @@ export const sendWelcomeEmail = async (email, name) => {
     const html = WELCOME_EMAIL_TEMPLATE
                 .replace("{userName}", name)
                 .replace("{appName}", appName)  
-                .replace("{logoUrl}", "https://example.com/logo.png")
-                .replace("{startLink}", "http://localhost:5000/api/auth/login"); // "https://eventosapp.com/login"
+                .replace("{logoUrl}", "https://example.com/logo.png")                
+                .replace("{startText}", `${process.env.CLIENT_URL}/login`);
+
 
 
   
